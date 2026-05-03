@@ -3,187 +3,173 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lagerbestand App</title>
+<title>Lagerbestand</title>
 
 <style>
-    body {
-        margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-        background: radial-gradient(circle at top, #0f172a, #020617);
-        color: #e2e8f0;
-    }
+:root{
+  --bg1:#0b1220; --bg2:#020617; --card:rgba(255,255,255,.08);
+  --accent:#3b82f6; --accent2:#6366f1; --green:#10b981; --red:#ef4444;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #1e293b, var(--bg2));
+  color:#e5e7eb;
+}
+.container{max-width:1100px;margin:auto;padding:16px}
 
-    .container {
-        max-width: 720px;
-        margin: auto;
-        padding: 20px;
-    }
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+h1{font-size:28px;margin:0}
+.badge{font-size:12px;opacity:.7}
 
-    h1 {
-        text-align: center;
-        font-size: 32px;
-        margin-bottom: 5px;
-    }
+.card{
+  background:var(--card); backdrop-filter: blur(14px);
+  border-radius:18px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
 
-    .subtitle {
-        text-align: center;
-        opacity: 0.7;
-        margin-bottom: 20px;
-    }
+.inputs{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px}
+@media(max-width:700px){.inputs{grid-template-columns:1fr 1fr;}}
+input{
+  width:100%; padding:12px; border-radius:12px; border:none; outline:none;
+  background:rgba(255,255,255,.1); color:white
+}
+button{
+  border:none; border-radius:12px; padding:12px; color:white; cursor:pointer;
+  background:linear-gradient(90deg,var(--accent),var(--accent2)); font-weight:600
+}
 
-    .card {
-        background: rgba(255,255,255,0.06);
-        backdrop-filter: blur(12px);
-        border-radius: 18px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
+.tabs{display:flex;gap:8px;overflow:auto;margin:12px 0}
+.tab{
+  padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);
+  white-space:nowrap;cursor:pointer
+}
+.tab.active{background:var(--accent)}
 
-    input {
-        width: 100%;
-        padding: 12px;
-        margin: 6px 0;
-        border-radius: 10px;
-        border: none;
-        outline: none;
-        background: rgba(255,255,255,0.08);
-        color: white;
-    }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.item{background:rgba(255,255,255,.06);padding:12px;border-radius:14px}
+.row{display:flex;gap:6px;margin-top:8px}
+.small{flex:1;padding:8px;border-radius:10px}
+.plus{background:var(--green)}
+.minus{background:var(--red)}
+.del{background:#6b7280}
+.low{color:#f87171;font-weight:600}
 
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 8px;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(90deg,#3b82f6,#6366f1);
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    button:hover {
-        transform: scale(1.02);
-    }
-
-    .item {
-        padding: 14px;
-        border-radius: 14px;
-        margin-bottom: 12px;
-        background: rgba(255,255,255,0.05);
-    }
-
-    .row {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .btn {
-        flex: 1;
-        padding: 10px;
-        border-radius: 10px;
-        border: none;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .plus { background: #10b981; color: white; }
-    .minus { background: #ef4444; color: white; }
-    .delete { background: #6b7280; color: white; }
-
-    .low {
-        color: #f87171;
-        font-weight: bold;
-    }
-
-    .topbar {
-        text-align: center;
-        font-size: 14px;
-        opacity: 0.7;
-        margin-bottom: 10px;
-    }
+.empty{opacity:.6;text-align:center;padding:20px}
 </style>
 </head>
 <body>
 
 <div class="container">
 
-    <h1>📦 Lagerbestand</h1>
-    <div class="subtitle">Deine persönliche Smart-Inventar-App</div>
+<header>
+  <h1>📦 Lager</h1>
+  <div class="badge">iOS Style</div>
+</header>
 
-    <div class="card">
-        <input id="name" placeholder="Materialname" />
-        <input id="qty" type="number" placeholder="Menge" />
-        <input id="min" type="number" placeholder="Mindestbestand" />
-        <button onclick="addItem()">+ Material hinzufügen</button>
-    </div>
+<div class="card">
+  <div class="inputs">
+    <input id="catName" placeholder="Kategorie (z.B. Werkzeug)" />
+    <button onclick="addCategory()">+ Kategorie</button>
+    <div></div><div></div>
+  </div>
+</div>
 
-    <div id="list"></div>
+<div class="tabs" id="tabs"></div>
+
+<div class="card">
+  <div class="inputs">
+    <input id="name" placeholder="Material" />
+    <input id="qty" type="number" placeholder="Menge" />
+    <input id="min" type="number" placeholder="Min" />
+    <button onclick="addItem()">+ Hinzufügen</button>
+  </div>
+</div>
+
+<div id="list" class="grid"></div>
 
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('items')) || [];
+let data = JSON.parse(localStorage.getItem('data')) || {categories: [], items: []};
+let activeCat = data.categories[0] || null;
 
-function save() {
-    localStorage.setItem('items', JSON.stringify(items));
+function save(){localStorage.setItem('data',JSON.stringify(data));}
+
+function addCategory(){
+  const name = document.getElementById('catName').value.trim();
+  if(!name) return;
+  if(!data.categories.includes(name)){
+    data.categories.push(name);
+  }
+  activeCat = name;
+  save();
+  render();
+  document.getElementById('catName').value='';
 }
 
-function addItem() {
-    const name = document.getElementById('name').value;
-    const qty = parseInt(document.getElementById('qty').value);
-    const min = parseInt(document.getElementById('min').value);
+function addItem(){
+  const name = document.getElementById('name').value.trim();
+  const qty = parseInt(document.getElementById('qty').value);
+  const min = parseInt(document.getElementById('min').value);
 
-    if (!name || isNaN(qty) || isNaN(min)) return;
+  if(!activeCat){alert('Bitte zuerst Kategorie erstellen');return;}
+  if(!name || isNaN(qty) || isNaN(min)) return;
 
-    items.push({ name, qty, min });
-    save();
-    render();
+  data.items.push({name,qty,min,cat:activeCat});
+  save(); render();
 
-    document.getElementById('name').value = '';
-    document.getElementById('qty').value = '';
-    document.getElementById('min').value = '';
+  document.getElementById('name').value='';
+  document.getElementById('qty').value='';
+  document.getElementById('min').value='';
 }
 
-function updateQty(index, change) {
-    items[index].qty += change;
-    if (items[index].qty < 0) items[index].qty = 0;
-    save();
-    render();
+function updateQty(i,change){
+  data.items[i].qty += change;
+  if(data.items[i].qty < 0) data.items[i].qty = 0;
+  save(); render();
 }
 
-function deleteItem(index) {
-    items.splice(index, 1);
-    save();
-    render();
+function deleteItem(i){
+  data.items.splice(i,1);
+  save(); render();
 }
 
-function render() {
-    const list = document.getElementById('list');
-    list.innerHTML = '';
+function selectCat(cat){activeCat = cat; render();}
 
-    items.forEach((item, index) => {
-        const low = item.qty <= item.min;
+function render(){
+  const tabs = document.getElementById('tabs');
+  const list = document.getElementById('list');
 
-        list.innerHTML += `
-            <div class="item">
-                <div style="font-size:18px; font-weight:bold;">
-                    ${item.name} ${low ? '⚠️' : ''}
-                </div>
-                <div>Menge: <b>${item.qty}</b></div>
-                <div>Mindest: ${item.min}</div>
-                ${low ? '<div class="low">Niedriger Bestand!</div>' : ''}
-                <div class="row">
-                    <button class="btn plus" onclick="updateQty(${index}, 1)">+1</button>
-                    <button class="btn minus" onclick="updateQty(${index}, -1)">-1</button>
-                    <button class="btn delete" onclick="deleteItem(${index})">Löschen</button>
-                </div>
-            </div>
-        `;
-    });
+  tabs.innerHTML='';
+  data.categories.forEach(cat=>{
+    tabs.innerHTML += `<div class="tab ${cat===activeCat?'active':''}" onclick="selectCat('${cat}')">${cat}</div>`;
+  });
+
+  list.innerHTML='';
+  const filtered = data.items.filter(i=>i.cat===activeCat);
+
+  if(filtered.length===0){
+    list.innerHTML = `<div class='empty'>Keine Einträge</div>`;
+    return;
+  }
+
+  filtered.forEach((item)=>{
+    const i = data.items.indexOf(item);
+    const low = item.qty <= item.min;
+
+    list.innerHTML += `
+      <div class="item">
+        <b>${item.name}</b> ${low?'⚠️':''}
+        <div>Menge: ${item.qty}</div>
+        <div>Min: ${item.min}</div>
+        ${low?'<div class="low">Niedrig!</div>':''}
+        <div class="row">
+          <button class="small plus" onclick="updateQty(${i},1)">+1</button>
+          <button class="small minus" onclick="updateQty(${i},-1)">-1</button>
+          <button class="small del" onclick="deleteItem(${i})">🗑️</button>
+        </div>
+      </div>`;
+  });
 }
 
 render();
@@ -192,11 +178,3 @@ render();
 </body>
 </html>
 
-<!-- 
-ONLINE HINWEIS:
-Um sie wirklich online zu nutzen:
-1. Lade diese Datei auf GitHub hoch
-2. Aktiviere GitHub Pages
-ODER
-3. Nutze netlify.com (drag & drop)
--->
